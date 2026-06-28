@@ -3,26 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Murodali VPN</title>
+    <title>Murodali VPN Pro</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: radial-gradient(circle, #1a1a2e 0%, #0f0f1a 100%); color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; overflow: hidden; }
-        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px 30px; width: 100%; max-width: 360px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; }
-        .logo-glow { width: 80px; height: 80px; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 30px rgba(79, 172, 254, 0.6); animation: pulse 2s infinite; }
-        h1 { font-size: 24px; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; background: linear-gradient(to right, #00f2fe, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        p { font-size: 14px; color: #8a8ab0; margin-bottom: 30px; line-height: 1.5; }
-        .btn { display: block; width: 100%; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; padding: 16px; font-size: 16px; font-weight: 700; border-radius: 14px; text-decoration: none; transition: transform 0.2s; box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3); }
-        .btn:active { transform: scale(0.98); }
-        @keyframes pulse { 0% { box-shadow: 0 0 20px rgba(79, 172, 254, 0.4); } 50% { box-shadow: 0 0 40px rgba(79, 172, 254, 0.8); } 100% { box-shadow: 0 0 20px rgba(79, 172, 254, 0.4); } }
+        body { background: radial-gradient(circle, #1a1a2e 0%, #0f0f1a 100%); color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
+        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px 30px; width: 100%; max-width: 360px; backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .logo { width: 80px; height: 80px; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 30px rgba(79, 172, 254, 0.5); }
+        h1 { font-size: 24px; margin-bottom: 10px; background: linear-gradient(to right, #00f2fe, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { font-size: 14px; color: #8a8ab0; margin-bottom: 25px; line-height: 1.5; }
+        .btn { display: block; width: 100%; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; padding: 16px; font-size: 16px; font-weight: 700; border-radius: 14px; text-decoration: none; box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3); cursor: pointer; }
+        .blocked-card { display: none; }
+        .status-text { font-size: 12px; margin-top: 15px; color: #00f2fe; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="logo-glow">⚡</div>
+
+    <!-- ЭКРАН 1: РАБОЧЕЕ ПРИЛОЖЕНИЕ (Видно первые 24 часа) -->
+    <div id="app-screen" class="card">
+        <div class="logo">⚡</div>
         <h1>MURODALI VPN</h1>
-        <p>Высокоскоростной безопасный интернет нового поколения. Подключение в один клик.</p>
-        <!-- Сюда мы чуть позже вставим ссылку на твоего ТГ-бота -->
-        <a href="https://t.me" class="btn">ПОДКЛЮЧИТЬ БЕСПЛАТНО</a>
+        <p>Высокоскоростной безопасный интернет. Тестовый период активирован автоматически.</p>
+        <!-- Твоя ссылка на ТГ бота для скачивания самого файла VPN-программы -->
+        <a href="https://t.me" class="btn" onclick="startTrial()">ПОДКЛЮЧИТЬ БЕСПЛАТНО</a>
+        <div id="timer-status" class="status-text">Период: 1 день бесплатно</div>
     </div>
+
+    <!-- ЭКРАН 2: БЛОКИРОВКА (Покажется автоматически ровно через 24 часа) -->
+    <div id="blocked-screen" class="card blocked-card">
+        <div class="logo" style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); box-shadow: 0 0 30px rgba(255, 65, 108, 0.5);">🔒</div>
+        <h1 style="background: linear-gradient(to right, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ТЕСТ ОКОНЧЕН</h1>
+        <p style="color: #ff8a8a;">Бесплатный период 24 часа завершен.</p>
+        <p style="font-size: 15px; color: #fff; background: rgba(255,65,108,0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,65,108,0.2);">
+            Бот находится на техническом обслуживании, идёт подключение платёжной системы ЮKassa. Ожидайте обновление в течение 5 дней!
+        </p>
+    </div>
+
+    <script>
+        function checkTrial() {
+            let startTime = localStorage.getItem('vpn_start_time');
+            if (startTime) {
+                let timeNow = new Date().getTime();
+                let vpnDuration = 24 * 60 * 60 * 1000; // Ровно 24 часа в миллисекундах
+                
+                if (timeNow - startTime > vpnDuration) {
+                    // Если прошло больше 24 часов — блокируем приложение
+                    document.getElementById('app-screen').style.display = 'none';
+                    document.getElementById('blocked-screen').style.display = 'block';
+                } else {
+                    // Пока время идет, показываем сколько осталось
+                    let timeLeft = vpnDuration - (timeNow - startTime);
+                    let hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                    document.getElementById('timer-status').innerText = "Осталось теста: " + hoursLeft + " ч.";
+                }
+            }
+        }
+
+        function startTrial() {
+            if (!localStorage.getItem('vpn_start_time')) {
+                let timeNow = new Date().getTime();
+                localStorage.setItem('vpn_start_time', timeNow);
+            }
+            setTimeout(checkTrial, 1000);
+        }
+
+        // Проверяем статус при каждом запуске приложения
+        checkTrial();
+        setInterval(checkTrial, 60000); // Проверка каждую минуту
+    </script>
 </body>
 </html>
+
