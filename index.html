@@ -34,7 +34,7 @@
     </div>
 
 <script>
-// Список ваших рабочих ключей
+// Список ключей (они будут выдаваться прямо с сайта без всяких серверов!)
 const vpnKeys = [
     "ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-Murodali1",
     "ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-Murodali2",
@@ -69,10 +69,10 @@ function handleConnectButtonClick() {
     localStorage.setItem("vpn_allocated_key", selectedKey);
 
     navigator.clipboard.writeText(selectedKey).then(() => {
-        alert("Успешно! Ваш тестовый VPN-ключ на 24 часа скопирован в буфер обмена.\\n\\nВставьте его в приложение v2rayNG, Amnezia или Hiddify для подключения.");
+        alert("Успешно! Ваш тестовый VPN-ключ на 24 часа скопирован в буфер обмена.\n\nВставьте его в приложение v2rayNG, Amnezia или Hiddify для подключения.");
         checkVpnStatus();
     }).catch(() => {
-        alert("Ваш VPN-ключ готов:\\n\\n" + selectedKey + "\\n\\nСкопируйте его вручную.");
+        alert("Ваш VPN-ключ готов:\n\n" + selectedKey + "\n\nСкопируйте его вручную.");
         checkVpnStatus();
     });
 }
@@ -90,5 +90,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
