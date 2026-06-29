@@ -1,21 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murodali VPN Pro</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: radial-gradient(circle, #0a0a12 0%, #05050a 100%); color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
+        .card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; padding: 40px 30px; width: 100%; max-width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .logo { width: 80px; height: 80px; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 30px rgba(79, 172, 254, 0.3); }
+        h1 { font-size: 24px; margin-bottom: 10px; background: linear-gradient(to right, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { font-size: 14px; color: #888; line-height: 1.5; margin-bottom: 25px; }
+        .btn { display: block; width: 100%; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; padding: 14px; font-size: 14px; font-weight: 700; border: none; border-radius: 14px; text-decoration: none; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(79, 172, 254, 0.2); }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <!-- Главный экран приложения -->
+    <div class="card" id="app-screen">
+        <div class="logo">⚡</div>
+        <h1>MURODALI VPN</h1>
+        <p>Высокоскоростной безопасный интернет. Нажмите кнопку ниже для получения личного ключа подключения.</p>
+        <!-- Кнопка с новым правильным ID -->
+        <button class="btn" id="connect-main-btn">ПОДКЛЮЧИТЬ БЕСПЛАТНО</button>
+    </div>
+
 <script>
 // Адрес вашего запущенного сервера VPS за 600 рублей
 const SERVER_IP = "http://194.251.222.134"; 
 
 function handleConnectButtonClick() {
-    // Делаем прямой запрос к вашему VPS без лишних проверок
+    // Делаем запрос к вашему VPS
     fetch(`${SERVER_IP}/get-key`)
     .then(res => res.json())
     .then(data => {
         if (data.key) {
-            // Сохраняем выданный ключ в память устройства
-            localStorage.setItem("vpn_allocated_key", data.key);
-
             // Копируем сгенерированный ключ в буфер обмена телефона/ПК
             navigator.clipboard.writeText(data.key).then(() => {
                 alert("Успешно! Ваш личный VPN-ключ сгенерирован вашим сервером и скопирован в буфер обмена.\n\nВставьте его в приложение v2rayNG, Amnezia или Hiddify для подключения.");
             }).catch(() => {
-                // Если браузер запретил автокопирование, просто показываем ключ на экране
                 alert("Ваш VPN-ключ готов:\n\n" + data.key + "\n\nСкопируйте его вручную и вставьте в v2rayNG / Hiddify.");
             });
         } else {
@@ -23,26 +47,21 @@ function handleConnectButtonClick() {
         }
     })
     .catch(err => {
-        alert("Не удалось связаться с вашим сервером VPS. Возможно, нужно перезапустить скрипт server.js командой node server.js &");
+        alert("Не удалось связаться с вашим сервером VPS. Убедитесь, что процесс на сервере запущен.");
     });
 }
 
-// Привязываем функцию к кнопке "ПОДКЛЮЧИТЬ БЕСПЛАТНО"
+// Привязываем функцию к кнопке по её точному ID
 document.addEventListener('DOMContentLoaded', () => {
-    const mainConnectBtn = document.querySelector('.btn');
+    const mainConnectBtn = document.getElementById('connect-main-btn');
     if (mainConnectBtn) {
-        mainConnectBtn.removeAttribute('onclick'); // Полностью очищаем старые переходы в ТГ
         mainConnectBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation();
             handleConnectButtonClick();
         });
     }
-    
-    // Принудительно заставляем сайт всегда показывать главный экран приложения
-    if(document.getElementById('app-screen')) document.getElementById('app-screen').style.display = "block";
-    if(document.getElementById('blocked-screen')) document.getElementById('blocked-screen').style.display = "none";
 });
 </script>
-
+</body>
+</html>
 
