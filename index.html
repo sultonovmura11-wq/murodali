@@ -1,7 +1,3 @@
-const http = require('http');
-
-// Ваш красивый HTML-код сайта со всеми стилями
-const htmlContent = `
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -15,52 +11,87 @@ const htmlContent = `
         .logo { width: 80px; height: 80px; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 30px rgba(79, 172, 254, 0.3); }
         h1 { font-size: 24px; margin-bottom: 10px; background: linear-gradient(to right, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         p { font-size: 14px; color: #888; line-height: 1.5; margin-bottom: 25px; }
-        .btn { display: block; width: 100%; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; padding: 14px; font-size: 14px; font-weight: 700; border: none; border-radius: 14px; text-decoration: none; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(79, 172, 254, 0.2); }
+        .btn { display: block; width: 100%; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; padding: 14px; font-size: 14px; font-weight: 700; border: none; border-radius: 14px; text-decoration: none; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(79, 172, 254, 0.2); line-height: 20px;}
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
     </style>
 </head>
 <body>
-    <div class="card">
+
+    <!-- ЭКРАН 1: ГЛАВНОЕ ПРИЛОЖЕНИЕ -->
+    <div class="card" id="app-screen" style="display: block;">
         <div class="logo">⚡</div>
         <h1>MURODALI VPN</h1>
         <p>Высокоскоростной безопасный интернет. Нажмите кнопку ниже для получения личного ключа подключения.</p>
         <button class="btn" id="connect-main-btn">ПОДКЛЮЧИТЬ БЕСПЛАТНО</button>
     </div>
-    <script>
-        document.getElementById('connect-main-btn').addEventListener('click', () => {
-            fetch('/get-key')
-            .then(res => res.json())
-            .then(data => {
-                if (data.key) {
-                    navigator.clipboard.writeText(data.key).then(() => {
-                        alert("Успешно! Ваш личный VPN-ключ сгенерирован сервером и скопирован в буфер обмена.\\n\\nВставьте его в приложение v2rayNG или Hiddify.");
-                    });
-                }
-            })
-            .catch(() => alert("Ошибка генерации ключа сервером."));
+
+    <!-- ЭКРАН 2: БЛОКИРОВКА -->
+    <div class="card" id="blocked-screen" style="display: none;">
+        <div class="logo">❌</div>
+        <h1>ВРЕМЯ ИСТЕКЛО</h1>
+        <p>Ваш бесплатный 24-часовой тестовый период закончился. Перейдите в нашего бота для оформления подписки.</p>
+        <a href="https://t.me" class="btn" style="text-align: center; display: block; text-decoration: none;">Оплатить в Telegram</a>
+    </div>
+
+<script>
+// Список ваших рабочих ключей (можете вставить сюда сколько угодно рабочих ключей)
+const vpnKeys = [
+    "ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-Murodali1",
+    "ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-Murodali2",
+    "ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-Murodali3"
+];
+
+function checkVpnStatus() {
+    const startTime = localStorage.getItem("vpn_start_time");
+    if (startTime) {
+        const timeNow = new Date().getTime();
+        const twentyFourHours = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+
+        // Если прошло больше 24 часов
+        if (timeNow - startTime > twentyFourHours) {
+            document.getElementById('app-screen').style.display = "none";
+            document.getElementById('blocked-screen').style.display = "block";
+            return true;
+        }
+    }
+    return false;
+}
+
+function handleConnectButtonClick() {
+    if (localStorage.getItem("vpn_start_time")) {
+        checkVpnStatus();
+        return;
+    }
+
+    // Выбираем случайный ключ из списка выше
+    const randomIndex = Math.floor(Math.random() * vpnKeys.length);
+    const selectedKey = vpnKeys[randomIndex];
+
+    // Запоминаем время первого клика на устройстве клиента
+    localStorage.setItem("vpn_start_time", new Date().getTime());
+    localStorage.setItem("vpn_allocated_key", selectedKey);
+
+    // Копируем ключ в буфер обмена пользователя
+    navigator.clipboard.writeText(selectedKey).then(() => {
+        alert("Успешно! Ваш тестовый VPN-ключ на 24 часа скопирован в буфер обмена.\\n\\nВставьте его в приложение v2rayNG, Amnezia или Hiddify для подключения.");
+        checkVpnStatus();
+    }).catch(() => {
+        alert("Ваш VPN-ключ готов:\\n\\n" + selectedKey + "\\n\\nСкопируйте его вручную и вставьте в v2rayNG / Hiddify.");
+        checkVpnStatus();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const mainConnectBtn = document.getElementById('connect-main-btn');
+    if (mainConnectBtn) {
+        mainConnectBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleConnectButtonClick();
         });
-    </script>
+    }
+    checkVpnStatus(); // Проверяем время при каждом заходе на сайт
+});
+</script>
 </body>
 </html>
-`;
-
-const server = http.createServer((req, res) => {
-    if (req.url === '/get-key' && req.method === 'GET') {
-        res.setHeader('Content-Type', 'application/json');
-        const id = Math.random().toString(36).substring(2, 10);
-        const vpnKey = `ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-${id}`;
-        res.writeHead(200);
-        res.end(JSON.stringify({ key: vpnKey }));
-    } else {
-        // Если пользователь заходит просто на сайт — показываем ему дизайн страницы
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.writeHead(200);
-        res.end(htmlContent);
-    }
-});
-
-server.listen(80, '0.0.0.0', () => {
-    console.log('Бэкенд и сайт успешно запущены на порту 80!');
-});
-
 
