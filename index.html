@@ -34,7 +34,7 @@
     </div>
 
 <script>
-// Список ключей, которые сайт будет случайно выдавать людям
+// Список ваших рабочих ключей
 const vpnKeys = [
     "ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-Murodali1",
     "ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-Murodali2",
@@ -47,7 +47,6 @@ function checkVpnStatus() {
         const timeNow = new Date().getTime();
         const twentyFourHours = 24 * 60 * 60 * 1000; // 24 часа
 
-        // Если прошло больше 24 часов
         if (timeNow - startTime > twentyFourHours) {
             document.getElementById('app-screen').style.display = "none";
             document.getElementById('blocked-screen').style.display = "block";
@@ -63,20 +62,17 @@ function handleConnectButtonClick() {
         return;
     }
 
-    // Выбираем случайный ключ из списка выше
     const randomIndex = Math.floor(Math.random() * vpnKeys.length);
     const selectedKey = vpnKeys[randomIndex];
 
-    // Запоминаем время клика на устройстве клиента
     localStorage.setItem("vpn_start_time", new Date().getTime());
     localStorage.setItem("vpn_allocated_key", selectedKey);
 
-    // Копируем ключ в буфер обмена пользователя
     navigator.clipboard.writeText(selectedKey).then(() => {
         alert("Успешно! Ваш тестовый VPN-ключ на 24 часа скопирован в буфер обмена.\\n\\nВставьте его в приложение v2rayNG, Amnezia или Hiddify для подключения.");
         checkVpnStatus();
     }).catch(() => {
-        alert("Ваш VPN-ключ готов:\\n\\n" + selectedKey + "\\n\\nСкопируйте его вручную и вставьте в v2rayNG.");
+        alert("Ваш VPN-ключ готов:\\n\\n" + selectedKey + "\\n\\nСкопируйте его вручную.");
         checkVpnStatus();
     });
 }
@@ -94,4 +90,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
