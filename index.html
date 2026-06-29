@@ -41,38 +41,75 @@
         </p>
     </div>
 
-    <script>
-        function checkTrial() {
-            let startTime = localStorage.getItem('vpn_start_time');
-            if (startTime) {
-                let timeNow = new Date().getTime();
-                let vpnDuration = 24 * 60 * 60 * 1000; // Ровно 24 часа в миллисекундах
-                
-                if (timeNow - startTime > vpnDuration) {
-                    // Если прошло больше 24 часов — блокируем приложение
-                    document.getElementById('app-screen').style.display = 'none';
-                    document.getElementById('blocked-screen').style.display = 'block';
-                } else {
-                    // Пока время идет, показываем сколько осталось
-                    let timeLeft = vpnDuration - (timeNow - startTime);
-                    let hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                    document.getElementById('timer-status').innerText = "Осталось теста: " + hoursLeft + " ч.";
-                }
-            }
-        }
+  <script>
+// Адрес вашего запущенного сервера VPS за 600 рублей
+const SERVER_IP = "http://194.251.222.134"; 
+// Ссылка на вашего Telegram-бота для оплаты (замените ИМЯ_БОТА на свое)
+const TELEGRAM_BOT_URL = "https://t.me"; 
 
-        function startTrial() {
-            if (!localStorage.getItem('vpn_start_time')) {
-                let timeNow = new Date().getTime();
-                localStorage.setItem('vpn_start_time', timeNow);
-            }
-            setTimeout(checkTrial, 1000);
-        }
+function checkVpnStatus() {
+    const startTime = localStorage.getItem("vpn_start_time");
+    if (startTime) {
+        const timeNow = new Date().getTime();
+        const twentyFourHours = 24 * 60 * 60 * 1000; // 24 часа
 
-        // Проверяем статус при каждом запуске приложения
-        checkTrial();
-        setInterval(checkTrial, 60000); // Проверка каждую минуту
-    </script>
-</body>
-</html>
+        // Если 24 часа прошло — блокируем экран
+        if (timeNow - startTime > twentyFourHours) {
+            document.getElementById('app-screen').style.display = "none";
+            document.getElementById('blocked-screen').style.display = "block";
+            
+            // Настраиваем кнопку на Экране 2 для перехода в Telegram
+            const payBtn = document.querySelector('#blocked-screen .btn');
+            if (payBtn) {
+                payBtn.setAttribute('href', TELEGRAM_BOT_URL);
+                payBtn.textContent = "Оплатить в Telegram";
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+function handleConnectButtonClick() {
+    // Если триал уже запущен — проверяем время
+    if (localStorage.getItem("vpn_start_time")) {
+        checkVpnStatus();
+        return;
+    }
+
+    // Запрашиваем уникальный ключ у вашего Node.js сервера
+    fetch(`${SERVER_IP}/get-key`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.key) {
+            // Сохраняем время старта и ключ в память телефона
+            localStorage.setItem("vpn_start_time", new Date().getTime());
+            localStorage.setItem("vpn_allocated_key", data.key);
+
+            // Копируем ключ в буфер обмена клиента
+            navigator.clipboard.writeText(data.key).then(() => {
+                alert("Ваш бесплатный VPN ключ на 24 часа сгенерирован и скопирован! Вставьте его в v2rayNG или Hiddify.");
+            }).catch(() => {
+                alert("Ваш ключ:\n\n" + data.key + "\n\nСкопируйте его вручную.");
+            });
+
+            checkVpnStatus();
+        }
+    })
+    .catch(err => alert("Ошибка соединения с VPS сервером."));
+}
+
+// Привязываем логику к вашей кнопке "ПОДКЛЮЧИТЬ БЕСПЛАТНО"
+document.addEventListener('DOMContentLoaded', () => {
+    const mainConnectBtn = document.querySelector('.btn');
+    if (mainConnectBtn) {
+        mainConnectBtn.removeAttribute('onclick'); // Очищаем старый переход по ссылке
+        mainConnectBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleConnectButtonClick();
+        });
+    }
+    checkVpnStatus(); // Проверяем статус при открытии страницы
+});
+</script>
 
