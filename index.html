@@ -1,3 +1,7 @@
+const http = require('http');
+
+// Ваш красивый HTML-код сайта со всеми стилями
+const htmlContent = `
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -16,53 +20,47 @@
     </style>
 </head>
 <body>
-
-    <!-- Главный экран приложения -->
-    <div class="card" id="app-screen">
+    <div class="card">
         <div class="logo">⚡</div>
         <h1>MURODALI VPN</h1>
         <p>Высокоскоростной безопасный интернет. Нажмите кнопку ниже для получения личного ключа подключения.</p>
-        <!-- Кнопка с новым правильным ID -->
-      <button class="btn" id="connect-main-btn">ПОДКЛЮЧИТЬ БЕСПЛАТНО</button>
-
+        <button class="btn" id="connect-main-btn">ПОДКЛЮЧИТЬ БЕСПЛАТНО</button>
     </div>
-
-<script>
-// Адрес вашего запущенного сервера VPS за 600 рублей
-const SERVER_IP = "http://194.251.222.134"; 
-
-function handleConnectButtonClick() {
-    // Делаем запрос к вашему VPS
-    fetch(`${SERVER_IP}/get-key`)
-    .then(res => res.json())
-    .then(data => {
-        if (data.key) {
-            // Копируем сгенерированный ключ в буфер обмена телефона/ПК
-            navigator.clipboard.writeText(data.key).then(() => {
-                alert("Успешно! Ваш личный VPN-ключ сгенерирован вашим сервером и скопирован в буфер обмена.\n\nВставьте его в приложение v2rayNG, Amnezia или Hiddify для подключения.");
-            }).catch(() => {
-                alert("Ваш VPN-ключ готов:\n\n" + data.key + "\n\nСкопируйте его вручную и вставьте в v2rayNG / Hiddify.");
-            });
-        } else {
-            alert("Сервер не смог сгенерировать ключ. Проверьте статус бэкенда.");
-        }
-    })
-    .catch(err => {
-        alert("Не удалось связаться с вашим сервером VPS. Убедитесь, что процесс на сервере запущен.");
-    });
-}
-
-// Привязываем функцию к кнопке по её точному ID
-document.addEventListener('DOMContentLoaded', () => {
-    const mainConnectBtn = document.getElementById('connect-main-btn');
-    if (mainConnectBtn) {
-        mainConnectBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            handleConnectButtonClick();
+    <script>
+        document.getElementById('connect-main-btn').addEventListener('click', () => {
+            fetch('/get-key')
+            .then(res => res.json())
+            .then(data => {
+                if (data.key) {
+                    navigator.clipboard.writeText(data.key).then(() => {
+                        alert("Успешно! Ваш личный VPN-ключ сгенерирован сервером и скопирован в буфер обмена.\\n\\nВставьте его в приложение v2rayNG или Hiddify.");
+                    });
+                }
+            })
+            .catch(() => alert("Ошибка генерации ключа сервером."));
         });
-    }
-});
-</script>
+    </script>
 </body>
 </html>
+`;
+
+const server = http.createServer((req, res) => {
+    if (req.url === '/get-key' && req.method === 'GET') {
+        res.setHeader('Content-Type', 'application/json');
+        const id = Math.random().toString(36).substring(2, 10);
+        const vpnKey = `ss://Y2hhY2hhMjA6MTIzNDU=@194.251.222.134:12345#Trial-${id}`;
+        res.writeHead(200);
+        res.end(JSON.stringify({ key: vpnKey }));
+    } else {
+        // Если пользователь заходит просто на сайт — показываем ему дизайн страницы
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.writeHead(200);
+        res.end(htmlContent);
+    }
+});
+
+server.listen(80, '0.0.0.0', () => {
+    console.log('Бэкенд и сайт успешно запущены на порту 80!');
+});
+
 
